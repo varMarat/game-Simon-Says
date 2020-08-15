@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <link rel="stylesheet" href="css/game.css">
+    <title>Simon Says</title>
+</head>
+<body>
+    <div class="app">
+        <h1>Simon Says</h1>
+        <div class="appWrap">
+            <div class="game">
+                <div class="game-field">
+                    <div class="field-wrapper">
+                        <div class="row">
+                            <div class="block1" data-id='1' ref="a" @mousedown="onMousedown($event)"  @mouseup="onMouseup($event)">1</div>
+                            <div class="block2" data-id='2' ref="b" @mousedown="onMousedown($event)" @mouseup="onMouseup($event)">2</div>
+                        </div>
+                        <div class="row">
+                            <div class="block3" data-id='3' ref="c" @mousedown="onMousedown($event)" @mouseup="onMouseup($event)">3</div>
+                            <div class="block4" data-id='4' ref="d" @mousedown="onMousedown($event)" @mouseup="onMouseup($event)">4</div>
+                        </div>
+                    </div>
+                </div>  
+            </div>
+            <div class="control">
+                <div class="control-field">
+                    <h2>Round: {{round}}</h2>
+                    <br>
+                    <button class="btnStart" @click="start">Start</button>
+                    
+                    <p v-show="gameOver">
+                        Sorry, you lost after
+                        <span>{{round}}</span>
+                        rounds!
+                    </p>
+                </div>
+            </div>  
+            <button @click="test">test</button> 
+        </div>    
+    </div>
+
+    <script>
+        new Vue({
+            el:'.app',
+            data:{
+                round:0,
+                count:0,
+                gameOver: false,
+                randomSequence:[],
+                playerSequence:[]
+            },
+            methods:{
+                start(){
+                    this.round++
+                    this.gameOver = false
+                    setTimeout(() => {
+                        this.activeBlock()
+                    }, 1000);
+                },
+                randomNum(){
+                   return Math.floor(Math.random()*4)+1
+                },
+                activeBlock(){
+                    const num = this.randomNum()
+                    const keys = Object.keys(this.$refs)
+                    keys.forEach((key, index)=>{
+                        if(+this.$refs[key].dataset.id === num){
+                            this.randomSequence.push(this.$refs[key].dataset.id)
+                            this.$refs[key].style['opacity'] = '1'
+                            setTimeout(()=>{
+                                this.$refs[key].style['opacity'] = '.7'
+                             }, 700)
+                        }
+                    }) 
+                },
+                consistentActivation(){
+                   let count = 0
+                   let intervalId = setInterval(() => {
+                       count++
+                       if(count === this.round){
+                           clearInterval(intervalId)
+                       }
+                       this.activeBlock()
+                   }, 1500);
+                },
+                onMousedown(e){
+                    e.toElement.style['opacity'] = '1'
+                    this.playerSequence.push(e.toElement.dataset.id)
+                    if(this.randomSequence.length ===  this.playerSequence.length){
+                        if(this.compareResult()){
+                            this.round++
+                            this.consistentActivation()
+                            this.restart()
+                        }else{
+                            this.gameOver = true
+                        }
+                    }else{
+                        if(this.randomSequence[this.count]!= e.toElement.dataset.id){this.randomSequence = []
+                            this.restart()
+                            this.round = 0
+                            this.gameOver = true
+                        }else{
+                            this.count++
+                        }
+                        
+                    }
+                },
+                compareResult(){
+                    return JSON.stringify(this.playerSequence)===JSON.stringify(this.randomSequence)
+                     
+                },
+                onMouseup(e){
+                    e.toElement.style['opacity'] = '.7'
+                },
+                restart(){
+                    this.playerSequence = []
+                    this.randomSequence = []
+                    this.count = 0
+                },
+                test(){
+                    console.log('player: ', this.playerSequence)
+                    console.log('random: ', this.randomSequence)
+                    console.log('filter', this.compareResult())
+                    console.log('count: ', this.count)
+                }   
+            }
+        })
+    </script>
+    <!-- в момент когда играет машина отключить возможность нажимать на кнопки -->
+    <!-- добавить звук -->
+    <!-- добавить уровни сложности -->
+</body>
+</html>

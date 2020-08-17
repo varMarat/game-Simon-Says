@@ -15,12 +15,12 @@
                 <div class="game-field">
                     <div class="field-wrapper">
                         <div class="row">
-                            <div class="block1" data-id='1' ref="a" @mousedown="onMousedown($event)"  @mouseup="onMouseup($event)">1</div>
-                            <div class="block2" data-id='2' ref="b" @mousedown="onMousedown($event)" @mouseup="onMouseup($event)">2</div>
+                            <div class="block1" :class="{cover: isCover}" data-id='1' ref="a" @mousedown="onMousedown($event)"  @mouseup="onMouseup($event)"></div>
+                            <div class="block2" :class="{cover: isCover}" data-id='2' ref="b" @mousedown="onMousedown($event)" @mouseup="onMouseup($event)"></div>
                         </div>
                         <div class="row">
-                            <div class="block3" data-id='3' ref="c" @mousedown="onMousedown($event)" @mouseup="onMouseup($event)">3</div>
-                            <div class="block4" data-id='4' ref="d" @mousedown="onMousedown($event)" @mouseup="onMouseup($event)">4</div>
+                            <div class="block3" :class="{cover: isCover}" data-id='3' ref="c" @mousedown="onMousedown($event)" @mouseup="onMouseup($event)"></div>
+                            <div class="block4" :class="{cover: isCover}" data-id='4' ref="d" @mousedown="onMousedown($event)" @mouseup="onMouseup($event)"></div>
                         </div>
                     </div>
                 </div>  
@@ -37,6 +37,13 @@
                         rounds!
                     </p>
                 </div>
+                <br>
+                <div class="control-options">
+                    <h2>Game Options:</h2>
+                    <input type="radio" name="mode" value="normal" checked>easy<br>
+                    <input type="radio" name="mode" value="sound-only">middle<br>
+                    <input type="radio" name="mode" value="light-only">complicated<br>
+                </div>
             </div>  
             <button @click="test">test</button> 
         </div>    
@@ -49,6 +56,7 @@
                 round:0,
                 count:0,
                 gameOver: false,
+                isCover: false,
                 randomSequence:[],
                 playerSequence:[]
             },
@@ -67,7 +75,9 @@
                     const num = this.randomNum()
                     const keys = Object.keys(this.$refs)
                     keys.forEach((key, index)=>{
-                        if(+this.$refs[key].dataset.id === num){
+                        const dataId = +this.$refs[key].dataset.id
+                        if(dataId === num){
+                            this.sound(dataId)
                             this.randomSequence.push(this.$refs[key].dataset.id)
                             this.$refs[key].style['opacity'] = '1'
                             setTimeout(()=>{
@@ -79,16 +89,19 @@
                 consistentActivation(){
                    let count = 0
                    let intervalId = setInterval(() => {
+                     this.isCover = true
                        count++
                        if(count === this.round){
                            clearInterval(intervalId)
+                           this.isCover = false
                        }
                        this.activeBlock()
                    }, 1500);
                 },
                 onMousedown(e){
+                    const dataId = e.toElement.dataset.id
                     e.toElement.style['opacity'] = '1'
-                    this.playerSequence.push(e.toElement.dataset.id)
+                    this.playerSequence.push(dataId)
                     if(this.randomSequence.length ===  this.playerSequence.length){
                         if(this.compareResult()){
                             this.round++
@@ -98,7 +111,8 @@
                             this.gameOver = true
                         }
                     }else{
-                        if(this.randomSequence[this.count]!= e.toElement.dataset.id){this.randomSequence = []
+                        if(this.randomSequence[this.count]!= dataId){
+                            this.randomSequence = []
                             this.restart()
                             this.round = 0
                             this.gameOver = true
@@ -107,6 +121,7 @@
                         }
                         
                     }
+                    this.sound(dataId)
                 },
                 compareResult(){
                     return JSON.stringify(this.playerSequence)===JSON.stringify(this.randomSequence)
@@ -119,6 +134,24 @@
                     this.playerSequence = []
                     this.randomSequence = []
                     this.count = 0
+                },
+                sound(id) {
+	                const audio = new Audio(); 
+	                audio.src = this.findSound(id); 
+	                audio.autoplay = true; 
+                },
+                findSound(id){
+                    id = String(id)
+                    switch(id){
+                        case '1': return `./sounds/${id}.mp3`
+                        break
+                        case '2': return `./sounds/${id}.mp3`
+                        break
+                        case '3': return `./sounds/${id}.mp3`
+                        break
+                        case '4': return `./sounds/${id}.mp3`
+                        break
+                    }
                 },
                 test(){
                     console.log('player: ', this.playerSequence)

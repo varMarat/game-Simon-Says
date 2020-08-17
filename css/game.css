@@ -94,3 +94,6 @@ h1{
 .btnStart:hover{
     opacity: .7;
 }
+.cover{
+    pointer-events: none;
+}

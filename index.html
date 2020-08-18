@@ -40,12 +40,15 @@
                 <br>
                 <div class="control-options">
                     <h2>Game Options:</h2>
-                    <input type="radio" name="mode" value="normal" checked>easy<br>
-                    <input type="radio" name="mode" value="sound-only">middle<br>
-                    <input type="radio" name="mode" value="light-only">complicated<br>
+                    <input type="radio" v-model="speed" :value="1700" checked>easy<br>
+                    <input type="radio" v-model="speed" :value="1400">middle<br>
+                    <input type="radio" v-model="speed" :value="1000">complicated<br>
+                </div>
+                <br>
+                <div class="link">
+                    <a href="https://github.com/varMarat/game-Simon-Says">ссылка на исходный код</a>
                 </div>
             </div>  
-            <button @click="test">test</button> 
         </div>    
     </div>
 
@@ -56,13 +59,19 @@
                 round:0,
                 count:0,
                 gameOver: false,
+                speed: 1700,
                 isCover: false,
                 randomSequence:[],
                 playerSequence:[]
             },
             methods:{
                 start(){
-                    this.round++
+                    if(this.round>0){
+                        this.restart()
+                        this.round=0
+                    }else{
+                        this.round++
+                    }
                     this.gameOver = false
                     setTimeout(() => {
                         this.activeBlock()
@@ -96,7 +105,8 @@
                            this.isCover = false
                        }
                        this.activeBlock()
-                   }, 1500);
+                   }, this.speed);
+                   console.log(this.speed)
                 },
                 onMousedown(e){
                     const dataId = e.toElement.dataset.id
@@ -114,7 +124,6 @@
                         if(this.randomSequence[this.count]!= dataId){
                             this.randomSequence = []
                             this.restart()
-                            this.round = 0
                             this.gameOver = true
                         }else{
                             this.count++
@@ -152,18 +161,9 @@
                         case '4': return `./sounds/${id}.mp3`
                         break
                     }
-                },
-                test(){
-                    console.log('player: ', this.playerSequence)
-                    console.log('random: ', this.randomSequence)
-                    console.log('filter', this.compareResult())
-                    console.log('count: ', this.count)
-                }   
+                } 
             }
         })
     </script>
-    <!-- в момент когда играет машина отключить возможность нажимать на кнопки -->
-    <!-- добавить звук -->
-    <!-- добавить уровни сложности -->
 </body>
 </html>

@@ -150,17 +150,7 @@
 	                audio.autoplay = true; 
                 },
                 findSound(id){
-                    id = String(id)
-                    switch(id){
-                        case '1': return `./sounds/${id}.mp3`
-                        break
-                        case '2': return `./sounds/${id}.mp3`
-                        break
-                        case '3': return `./sounds/${id}.mp3`
-                        break
-                        case '4': return `./sounds/${id}.mp3`
-                        break
-                    }
+                    return `./sounds/${id}.mp3`
                 } 
             }
         })
